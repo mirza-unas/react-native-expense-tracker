@@ -14,8 +14,17 @@ app.use(express.json());
 
 app.use("/api/transactions", transactionsRoute);
 
-initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-});
+// Initialize DB before handling requests
+const startServer = async () => {
+  await initDB();
+
+  if (process.env.VERCEL !== "1") {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  }
+};
+
+startServer();
+
+export default app;

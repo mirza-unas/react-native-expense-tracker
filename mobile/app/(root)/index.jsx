@@ -3,16 +3,20 @@ import{ Text, View} from 'react-native'
 import { SignedIn, SignedOut, useSession, useUser } from '@clerk/clerk-expo'
 import { Link } from 'expo-router'
 import { StyleSheet } from 'react-native'
-
+import { useTransactions } from '../../hooks/useTransctions'
+import PageLoader from '../../components/PageLoader'
+import {useEffect} from 'react'
 export default function Page() {
   const { user } = useUser()
+  const { loadData, deleteTransaction, isLoading, transactions, summary } = useTransactions(user?.id)
 
-  // If your user isn't appearing as signed in,
-  // it's possible they have session tasks to complete.
-  // Learn more: https://clerk.com/docs/guides/configure/session-tasks
   const { session } = useSession()
-  console.log(session?.currentTask)
+  
+  useEffect(()=> {
+    loadData()
+  }, [loadData])
 
+  if(isLoading) return <PageLoader/>
   return (
     <View style={styles.container}>
       <Text type="title">Welcome!</Text>
