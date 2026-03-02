@@ -1,47 +1,97 @@
-import { SignOutButton } from '../../components/SignOutButton'
-import{ Text, View} from 'react-native'
-import { SignedIn, SignedOut, useSession, useUser } from '@clerk/clerk-expo'
-import { Link } from 'expo-router'
-import { StyleSheet } from 'react-native'
-import { useTransactions } from '../../hooks/useTransctions'
-import PageLoader from '../../components/PageLoader'
-import {useEffect} from 'react'
+import { SignOutButton } from "../../components/SignOutButton";
+import {
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+} from "react-native";
+import { useUser } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
+import { useTransactions } from "../../hooks/useTransctions";
+import PageLoader from "../../components/PageLoader";
+import { useEffect } from "react";
+import { styles } from "../../assets/styles/home.styles";
+import { useRouter } from "expo-router";
+import { BalanceCard } from "../../components/BalanceCard";
+import TransactionItem from "../../components/TransactionItem";
+import NoTransactionsFound from "../../components/NoTransactionsFound";
 export default function Page() {
-  const { user } = useUser()
-  const { loadData, deleteTransaction, isLoading, transactions, summary } = useTransactions(user?.id)
+  const router = useRouter();
+  const { user } = useUser();
 
-  const { session } = useSession()
-  
-  useEffect(()=> {
-    loadData()
-  }, [loadData])
+  const { loadData, deleteTransaction, isLoading, transactions, summary } =
+    useTransactions(user?.id);
 
-  if(isLoading) return <PageLoader/>
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleDelete = (id) => {
+    Alert.alert(
+      "Delete Transaction",
+      "Are you sure you want to delete this transactions",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteTransaction(id),
+        },
+      ],
+    );
+  };
+
+  if (isLoading) return <PageLoader />;
   return (
     <View style={styles.container}>
-      <Text type="title">Welcome!</Text>
-      {/* Show the sign-in and sign-up buttons when the user is signed out */}
-      <SignedOut>
-        <Link href="/(auth)/sign-in">
-          <Text>Sign in</Text>
-        </Link>
-        <Link href="/(auth)/sign-up">
-          <Text>Sign up</Text>
-        </Link>
-      </SignedOut>
-      {/* Show the sign-out button when the user is signed in */}
-      <SignedIn>
-        <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
-        <SignOutButton />
-      </SignedIn>
-    </View>
-  )
-}
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+            <View style={styles.welcomeContainer}>
+              <Text style={styles.welcomeText}>Welcome, </Text>
+              <Text style={styles.usernameText}>
+                {user?.emailAddresses[0]?.emailAddress.split("@")[0]}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.push("create")}
+            >
+              <Ionicons name="add" size={20} color="#FFF" />
+              <Text style={styles.addButtonText}>Add</Text>
+            </TouchableOpacity>
+            <SignOutButton />
+          </View>
+        </View>
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    gap: 16,
-  },
-})
+        <BalanceCard summary={summary} />
+
+        <View style={styles.transactionsHeaderContainer}>
+          <Text style={styles.sectionTitle}> Recent Transactions</Text>
+        </View>
+      </View>
+      <FlatList
+        style={styles.transactionsList}
+        contentContainerStyle={styles.transactionsListContent}
+        data={transactions}
+        renderItem={({ item }) => (
+          <TransactionItem item={item} onDelete={handleDelete} />
+        )}
+        ListEmptyComponent={<NoTransactionsFound />}
+        showsVerticalScrollIndicator={false}
+        // refreshControl={
+        // <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        // }
+      />
+    </View>
+  );
+}
