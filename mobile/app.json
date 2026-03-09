@@ -1,15 +1,16 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Expense Tracker",
+    "slug": "expensetracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "expensetracker",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.unas.expensetracker"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,22 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.unas.expensetracker"
+      "package": "com.unas.expensetracker",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "expensetracker"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "output": "static",
@@ -48,8 +64,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "52b803ec-5a21-4354-8916-473806f84b8e"
+        "projectId": "ec15b313-5afb-420c-8d08-4135d51defb3"
       }
-    }
+    },
+    "owner": "mirza_unas"
   }
 }
